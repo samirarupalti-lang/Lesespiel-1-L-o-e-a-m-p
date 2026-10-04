@@ -3,8 +3,17 @@ const wordImages={"Leo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAABE
 const tasks=[['Leo',['Leo','Ole','Ela']],['Alo',['Alo','Ole','Leo']],['Ampel',['Ampel','Palme','Lama']],['Ole',['Ole','Leo','Alo']],['Palme',['Palme','Ampel','Lama']],['Mama',['Mama','Oma','Papa']],['Ela',['Ela','Leo','Alo']],['am',['am','Oma','Alo']],['Opa',['Opa','Oma','Papa']],['Oma',['Oma','Opa','Mama']],['Papa',['Papa','Opa','Mama']],['Lama',['Lama','Mama','Palme']]];
 let order=[],i=0,score=0,locked=false,voice=null;
 function shuffle(a){const b=[...a];for(let j=b.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[b[j],b[k]]=[b[k],b[j]]}return b}
-function pickVoice(){if(!('speechSynthesis'in window))return;const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang.toLowerCase()==='de-de')||vs.find(v=>v.lang.toLowerCase().startsWith('de'))||null}
-pickVoice();if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=pickVoice;
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices();
+
+  voice = vs.find(v =>
+    v.name === 'Anna' &&
+    v.lang.toLowerCase() === 'de-de'
+  ) || vs.find(v =>
+    v.lang.toLowerCase() === 'de-de'
+  ) || null;
+}pickVoice();if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=pickVoice;
 function playAudio(){if(!('speechSynthesis'in window)){feedback.textContent='Dieser Browser unterstützt die Vorlesefunktion leider nicht.';return}speechSynthesis.cancel();const target=order[i][0];const spoken={Alo:'Aalooh',Ela:'Ehla'}[target]||target;const u=new SpeechSynthesisUtterance(spoken);u.lang='de-DE';if(voice)u.voice=voice;u.rate=target==='Alo'?0.48:0.48;u.pitch=1;u.volume=1;speechSynthesis.speak(u)}
 function render(){locked=false;feedback.textContent='';next.style.display='none';counter.textContent='Wort '+(i+1)+' von '+order.length;bar.style.width=(i/order.length*100)+'%';answers.innerHTML='';shuffle(order[i][1]).forEach(txt=>{const b=document.createElement('button');b.className='answer';b.setAttribute('aria-label',txt);const img=document.createElement('img');img.src=wordImages[txt];img.alt=txt;b.appendChild(img);b.addEventListener('click',()=>choose(txt,b));answers.appendChild(b)});setTimeout(playAudio,550)}
 function rewardCoin(){const scoreEl=document.getElementById('score');const scoreBox=scoreEl.parentElement;const target=scoreBox.getBoundingClientRect();const coin=document.createElement('div');coin.className='coin-fly';coin.textContent='🪙';coin.setAttribute('aria-hidden','true');coin.style.left=(window.innerWidth/2)+'px';coin.style.top=Math.min(window.innerHeight*.62,520)+'px';coin.style.setProperty('--coin-x',(target.left+target.width/2)+'px');coin.style.setProperty('--coin-y',(target.top+target.height/2)+'px');document.body.appendChild(coin);requestAnimationFrame(()=>coin.classList.add('go'));setTimeout(()=>{score++;scoreEl.textContent=score;coin.remove();nextTask()},1280)}
